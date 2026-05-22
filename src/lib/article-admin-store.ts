@@ -31,11 +31,9 @@ export function listManagedArticles(): ManagedArticle[] {
     return JSON.parse(content) as ManagedArticle[];
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
-
-    if (code === 'ENOENT' || code === 'ENOTDIR' || code === 'EACCES' || code === 'EROFS') {
+    if (code === 'ENOENT' || code === 'EACCES' || code === 'EROFS') {
       return [];
     }
-
     throw error;
   }
 }

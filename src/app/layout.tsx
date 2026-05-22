@@ -18,10 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title = isZh
     ? 'Climate Seal | AI产品碳足迹与供应链碳管理平台'
-    : 'AI Carbon Footprint Platform | Audit-Ready PCF in Hours | Climate Seal';
+    : 'Product Carbon Footprint Platform | Climate Seal';
   const description = isZh
     ? 'Climate Seal 用 AI 自动化产品碳足迹、LCA、供应链碳数据协同与合规交付，帮助团队以更低成本完成审计级报告和客户交付。'
-    : 'AI agent for Product Carbon Footprint (PCF) Accounting and Assurance. Parse BOMs, auto-build LCAs, pre-verify evidence and export ISO 14067/GHG-aligned reports. Slash time and cost with no expertise needed. Deploy as secure SaaS or fully on-premise. Free one report to start your decarbonization journey.';
+    : 'Climate Seal is an AI-powered product carbon footprint platform and PCF software that turns fragmented BOM and supplier data into verification-ready carbon reports. Use AI carbon accounting software to support modeling, defensible factor matching, evidence tracking, and review workflows.';
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://climate-seal.com"),
@@ -49,6 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "AI碳管理",
       "GHG Protocol碳盘查",
       "carbon footprint",
+      "PCF software",
       "产品碳足迹",
       "供应链碳管理",
       "气候合规",
@@ -56,7 +57,9 @@ export async function generateMetadata(): Promise<Metadata> {
       "LCA",
       "SBTi",
       "GHG Protocol",
+      "product carbon footprint software",
       "carbon accounting software",
+      "AI carbon accounting software",
       "enterprise carbon management",
       "supply chain carbon footprint",
       "scope 3 emissions calculation",
@@ -124,7 +127,7 @@ export default async function RootLayout({
             name: "Climate Seal",
             url: (process.env.NEXT_PUBLIC_APP_URL || "https://climate-seal.com"),
             logo: new URL("/logo.jpg", process.env.NEXT_PUBLIC_APP_URL || "https://climate-seal.com").toString(),
-            description: "AI agent for Product Carbon Footprint (PCF) Accounting and Assurance. Parse BOMs, auto-build LCAs, pre-verify evidence and export ISO 14067/GHG-aligned reports.",
+            description: "Climate Seal is an AI-powered product carbon footprint platform and PCF software that turns fragmented BOM and supplier data into verification-ready carbon reports.",
             foundingDate: "2024",
             sameAs: [
               "https://twitter.com/ClimateSeal",
@@ -145,7 +148,7 @@ export default async function RootLayout({
             name: "Climate Seal AI Platform",
             applicationCategory: "BusinessApplication",
             operatingSystem: "Web",
-            description: "AI agent for Product Carbon Footprint (PCF) Accounting and Assurance. Parse BOMs, auto-build LCAs, pre-verify evidence and export ISO 14067/GHG-aligned reports.",
+            description: "Climate Seal is an AI-powered product carbon footprint platform and AI carbon accounting software for verification-ready reporting.",
             url: (process.env.NEXT_PUBLIC_APP_URL || "https://climate-seal.com"),
             offers: {
               "@type": "Offer",

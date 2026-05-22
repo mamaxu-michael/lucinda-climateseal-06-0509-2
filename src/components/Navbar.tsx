@@ -127,7 +127,7 @@ const Navbar = () => {
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="px-1 py-2 font-source-sans text-[0.95rem] font-semibold tracking-[0.02em] text-white/90 transition duration-300 hover:text-[#d6e8df]"
+                      className="px-1 py-2 font-source-sans text-[0.93rem] font-medium tracking-[0.01em] text-white/90 transition duration-300 hover:text-[#d6e8df]"
                     >
                       {item.name}
                     </Link>
@@ -146,7 +146,7 @@ const Navbar = () => {
                     >
                       <button
                         onClick={handleDropdownClick}
-                        className="flex cursor-pointer items-center gap-1 px-1 py-2 font-source-sans text-[0.95rem] font-semibold tracking-[0.02em] text-white/90 transition duration-300 hover:text-[#d6e8df]"
+                        className="flex cursor-pointer items-center gap-1 px-1 py-2 font-source-sans text-[0.93rem] font-medium tracking-[0.01em] text-white/90 transition duration-300 hover:text-[#d6e8df]"
                         aria-expanded={isSolutionsOpen}
                         aria-haspopup="true"
                       >
@@ -163,7 +163,7 @@ const Navbar = () => {
                             <Link
                               key={dropdownItem.href}
                               href={dropdownItem.href}
-                              className="block px-5 py-3 font-source-sans text-[0.95rem] font-medium text-white/90 transition duration-200 hover:bg-white/10 hover:text-[#d6e8df]"
+                              className="block px-5 py-3 font-source-sans text-[0.94rem] font-medium text-white/90 transition duration-200 hover:bg-white/10 hover:text-[#d6e8df]"
                               onMouseDown={() => {
                                 if (timeoutRef.current) {
                                   clearTimeout(timeoutRef.current);
@@ -188,7 +188,7 @@ const Navbar = () => {
                   <button
                     key={item.name}
                     onClick={() => handleNavClick(item.href, item.route)}
-                    className="cursor-pointer px-1 py-2 font-source-sans text-[0.95rem] font-semibold tracking-[0.02em] text-white/90 transition duration-300 hover:text-[#d6e8df]"
+                    className="cursor-pointer px-1 py-2 font-source-sans text-[0.93rem] font-medium tracking-[0.01em] text-white/90 transition duration-300 hover:text-[#d6e8df]"
                   >
                     {item.name}
                   </button>
@@ -197,7 +197,7 @@ const Navbar = () => {
             </div>
             <Link
               href="/#contact"
-              className="inline-flex items-center justify-center rounded-[0.6rem] bg-white px-4 py-2 text-[0.9rem] font-semibold text-[#003531] transition duration-300 hover:bg-[#d6e8df]"
+              className="inline-flex items-center justify-center rounded-[0.6rem] bg-white px-4 py-2 text-[0.88rem] font-semibold tracking-[0.01em] text-[#003531] transition duration-300 hover:bg-[#d6e8df]"
             >
               {language === 'zh' ? '预约演示' : 'Book a Demo'}
             </Link>

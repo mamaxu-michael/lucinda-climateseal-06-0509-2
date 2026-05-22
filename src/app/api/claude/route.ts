@@ -2,19 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
 function getAnthropicApiKey() {
-  return process.env.ANTHROPIC_API_KEY;
+  return process.env.ANTHROPIC_API_KEY || '';
 }
 
 function getAnthropicBaseURL() {
-  return process.env.ANTHROPIC_BASE_URL;
+  return process.env.ANTHROPIC_BASE_URL || undefined;
 }
 
 export async function POST(request: NextRequest) {
   try {
     // 验证API密钥
-    const apiKey = getAnthropicApiKey();
-
-    if (!apiKey) {
+    if (!getAnthropicApiKey()) {
       return NextResponse.json(
         { error: 'Anthropic API密钥未配置' },
         { status: 401 }
@@ -34,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // 初始化Anthropic客户端
     const anthropic = new Anthropic({
-      apiKey,
+      apiKey: getAnthropicApiKey(),
       baseURL: getAnthropicBaseURL(),
     });
 
