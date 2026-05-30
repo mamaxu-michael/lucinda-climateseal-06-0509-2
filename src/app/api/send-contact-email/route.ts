@@ -26,6 +26,7 @@ function successWithFallback() {
     {
       success: true,
       fallback: true,
+      message: 'Your request was received, but email delivery is not configured. Please contact us directly using the fallback contact details.',
       contactInfo: FALLBACK_CONTACT,
     },
     { status: 200 }
@@ -68,35 +69,47 @@ export async function POST(request: NextRequest) {
       return badRequest(requestId, 'Referral code not found or inactive');
     }
 
-    await saveContactSubmission({
-      id: requestId,
-      submittedAt: new Date().toISOString(),
-      name,
-      email,
-      phone,
-      company,
-      industry,
-      message,
-      referralCode: referralOwner?.referralCode,
-      referralOwnerId: referralOwner?.id,
-      referralOwnerName: referralOwner?.name,
-    });
+    try {
+      await saveContactSubmission({
+        id: requestId,
+        submittedAt: new Date().toISOString(),
+        name,
+        email,
+        phone,
+        company,
+        industry,
+        message,
+        referralCode: referralOwner?.referralCode,
+        referralOwnerId: referralOwner?.id,
+        referralOwnerName: referralOwner?.name,
+      });
+    } catch (storageError) {
+      logApiEvent('send-contact-email', requestId, 'contact-storage-skipped', {
+        message: storageError instanceof Error ? storageError.message : 'unknown error',
+      });
+    }
 
     if (referralOwner) {
-      await saveReferralUse({
-        id: `${requestId}-ref`,
-        createdAt: new Date().toISOString(),
-        referralCode: referralOwner.referralCode,
-        referralOwnerId: referralOwner.id,
-        referralOwnerName: referralOwner.name,
-        referredName: name,
-        referredEmail: email,
-        referredCompany: company,
-        source: 'contact_form',
-        contactSubmissionId: requestId,
-        status: 'new',
-        rewardValueUsd: 200,
-      });
+      try {
+        await saveReferralUse({
+          id: `${requestId}-ref`,
+          createdAt: new Date().toISOString(),
+          referralCode: referralOwner.referralCode,
+          referralOwnerId: referralOwner.id,
+          referralOwnerName: referralOwner.name,
+          referredName: name,
+          referredEmail: email,
+          referredCompany: company,
+          source: 'contact_form',
+          contactSubmissionId: requestId,
+          status: 'new',
+          rewardValueUsd: 200,
+        });
+      } catch (storageError) {
+        logApiEvent('send-contact-email', requestId, 'referral-storage-skipped', {
+          message: storageError instanceof Error ? storageError.message : 'unknown error',
+        });
+      }
     }
 
     logApiEvent('send-contact-email', requestId, 'received', {
