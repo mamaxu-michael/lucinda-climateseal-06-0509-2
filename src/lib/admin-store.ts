@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { neon } from '@neondatabase/serverless';
 
 export type ContactSubmission = {
   id: string;
@@ -93,6 +94,75 @@ const ASSETS_FILE = path.join(ADMIN_DATA_DIR, 'uploaded-assets.json');
 const REFERRAL_OWNERS_FILE = path.join(ADMIN_DATA_DIR, 'referral-owners.json');
 const REFERRAL_USES_FILE = path.join(ADMIN_DATA_DIR, 'referral-uses.json');
 const CONSULTANT_APPLICATIONS_FILE = path.join(ADMIN_DATA_DIR, 'consultant-partner-applications.json');
+const DATABASE_URL = process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL;
+
+type ContactSubmissionRow = {
+  id: string;
+  submitted_at: string | Date;
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  industry: string;
+  message: string;
+  referral_code: string | null;
+  referral_owner_id: string | null;
+  referral_owner_name: string | null;
+};
+
+let dbClient: ReturnType<typeof neon> | null = null;
+let contactSubmissionsTableReady = false;
+
+function getDbClient() {
+  if (!DATABASE_URL) {
+    return null;
+  }
+
+  dbClient ??= neon(DATABASE_URL);
+  return dbClient;
+}
+
+async function ensureContactSubmissionsTable() {
+  const sql = getDbClient();
+  if (!sql || contactSubmissionsTableReady) {
+    return Boolean(sql);
+  }
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS contact_submissions (
+      id TEXT PRIMARY KEY,
+      submitted_at TIMESTAMPTZ NOT NULL,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      company TEXT NOT NULL,
+      industry TEXT NOT NULL,
+      message TEXT NOT NULL,
+      referral_code TEXT,
+      referral_owner_id TEXT,
+      referral_owner_name TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  contactSubmissionsTableReady = true;
+  return true;
+}
+
+function mapContactSubmissionRow(row: ContactSubmissionRow): ContactSubmission {
+  return {
+    id: row.id,
+    submittedAt: row.submitted_at instanceof Date ? row.submitted_at.toISOString() : new Date(row.submitted_at).toISOString(),
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    company: row.company,
+    industry: row.industry,
+    message: row.message,
+    referralCode: row.referral_code ?? undefined,
+    referralOwnerId: row.referral_owner_id ?? undefined,
+    referralOwnerName: row.referral_owner_name ?? undefined,
+  };
+}
 
 async function ensureAdminDir() {
   await fs.mkdir(ADMIN_DATA_DIR, { recursive: true });
@@ -124,6 +194,51 @@ async function appendJsonRow<T>(filePath: string, row: T) {
 }
 
 export async function saveContactSubmission(submission: ContactSubmission) {
+  const sql = getDbClient();
+  if (sql) {
+    await ensureContactSubmissionsTable();
+    await sql`
+      INSERT INTO contact_submissions (
+        id,
+        submitted_at,
+        name,
+        email,
+        phone,
+        company,
+        industry,
+        message,
+        referral_code,
+        referral_owner_id,
+        referral_owner_name
+      )
+      VALUES (
+        ${submission.id},
+        ${submission.submittedAt},
+        ${submission.name},
+        ${submission.email},
+        ${submission.phone},
+        ${submission.company},
+        ${submission.industry},
+        ${submission.message},
+        ${submission.referralCode ?? null},
+        ${submission.referralOwnerId ?? null},
+        ${submission.referralOwnerName ?? null}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        submitted_at = EXCLUDED.submitted_at,
+        name = EXCLUDED.name,
+        email = EXCLUDED.email,
+        phone = EXCLUDED.phone,
+        company = EXCLUDED.company,
+        industry = EXCLUDED.industry,
+        message = EXCLUDED.message,
+        referral_code = EXCLUDED.referral_code,
+        referral_owner_id = EXCLUDED.referral_owner_id,
+        referral_owner_name = EXCLUDED.referral_owner_name
+    `;
+    return;
+  }
+
   await appendJsonRow(CONTACTS_FILE, submission);
 }
 
@@ -136,6 +251,28 @@ export async function saveUploadedAsset(asset: UploadedAsset) {
 }
 
 export async function listContactSubmissions(): Promise<ContactSubmission[]> {
+  const sql = getDbClient();
+  if (sql) {
+    await ensureContactSubmissionsTable();
+    const rows = await sql`
+      SELECT
+        id,
+        submitted_at,
+        name,
+        email,
+        phone,
+        company,
+        industry,
+        message,
+        referral_code,
+        referral_owner_id,
+        referral_owner_name
+      FROM contact_submissions
+      ORDER BY submitted_at DESC
+    `;
+    return (rows as ContactSubmissionRow[]).map(mapContactSubmissionRow);
+  }
+
   return readJsonFile<ContactSubmission>(CONTACTS_FILE);
 }
 
