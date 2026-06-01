@@ -21,6 +21,13 @@ const FALLBACK_CONTACT = {
   phone: '+86 15652618365',
 };
 
+function getEmailRecipients() {
+  return (process.env.EMAIL_TO || FALLBACK_CONTACT.email)
+    .split(',')
+    .map((email) => email.trim())
+    .filter(Boolean);
+}
+
 function successWithFallback() {
   return NextResponse.json(
     {
@@ -215,10 +222,7 @@ export async function POST(request: NextRequest) {
       try {
         const { data, error } = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL,
-          to: [
-            process.env.EMAIL_TO || 'xuguang.ma@climateseal.net',
-            'michaelmaplus@gmail.com' // 同时发送到Gmail备份
-          ],
+          to: getEmailRecipients(),
           subject: `新的联系表单提交 - ${safeName}`,
           html: emailTemplate,
         });
@@ -260,7 +264,7 @@ export async function POST(request: NextRequest) {
       // 邮件内容
       const mailOptions = {
         from: process.env.EMAIL_FROM,
-        to: process.env.EMAIL_TO || 'xuguang.ma@climateseal.net',
+        to: getEmailRecipients(),
         subject: `新的联系表单提交 - ${safeName}`,
         html: emailTemplate,
       };
